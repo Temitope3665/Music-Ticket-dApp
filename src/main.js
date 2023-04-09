@@ -32,7 +32,6 @@ const connectCeloWallet = async function () {
 
         const getShows = async function() {
             const _showsLength = await contract.methods.getTotalShows().call()
-            console.log(_showsLength);
             const _shows = []
             for (let i = 0; i < _showsLength; i++) {
                 let _show = new Promise(async (resolve, reject) => {
@@ -55,10 +54,7 @@ const connectCeloWallet = async function () {
             }
             shows = await Promise.all(_shows)
               renderShows()
-              console.log(shows);
         }
-
-        console.log(getShows())
             
         notificationOff()
       } catch (error) {
@@ -91,7 +87,6 @@ const connectCeloWallet = async function () {
     if (e.target.className.includes("editTicket")) {
         const index = e.target.id
             const show = await contract.methods.getShow(index).call()
-            console.log(show)
             document.getElementById("showId").value = show[0],
             document.getElementById("artistName").value = show[3],
             document.getElementById("newShowTitleName").value = show[4],
@@ -100,9 +95,6 @@ const connectCeloWallet = async function () {
             document.getElementById("location").value = show[7],
             document.getElementById("capacity").value = show[9],
             document.getElementById("ticketPrice").value = show[8],
-            // new BigNumber(document.getElementById("ticketPrice").value = show[8])
-            // .shiftedBy(ERC20_DECIMALS)
-            // .toString()
             // Disable field
             document.getElementById("capacity").disabled = true,
             document.getElementById("artistName").disabled = true,
@@ -114,7 +106,6 @@ const connectCeloWallet = async function () {
             document.getElementById("newShowBtn").textContent = "Edit"
             document.getElementById("newShowBtn").id = "editShowBtn"
         }
-            console.log(document.getElementById("editShowBtn").id)
             document.getElementById("editShowBtn").addEventListener("click", async (e) => {
                 if (document.getElementById("editShowBtn").id === "editShowBtn") {
                     const params = [
@@ -122,7 +113,6 @@ const connectCeloWallet = async function () {
                     document.getElementById("newShowTitleName").value,
                     document.getElementById("dateOfShow").value,
                     ]
-                    console.log(params);
                     notification(`⌛ Editing "${params[1]}"...`)
                     try {
                     await contract.methods
@@ -139,7 +129,6 @@ const connectCeloWallet = async function () {
 })
 
   document.querySelector("#addModalAgain").addEventListener("click", async (e) => {
-    console.log(isEdited, '--> is edited')
     if (isEdited === false) {
         document.querySelector("#newShowBtn").addEventListener("click", async (e) => {
             if (document.getElementById("newShowBtn").id === "newShowBtn") {
@@ -151,11 +140,7 @@ const connectCeloWallet = async function () {
                     document.getElementById("location").value,
                     document.getElementById("capacity").value,
                     document.getElementById("ticketPrice").value,
-                    // new BigNumber(document.getElementById("ticketPrice").value)
-                    // .shiftedBy(ERC20_DECIMALS)
-                    // .toString()
                   ]
-                  console.log(params)
                   notification(`⌛ Adding ${params[1]} show...`)
                   try {
                     const result = await contract.methods
@@ -181,9 +166,6 @@ const connectCeloWallet = async function () {
         document.getElementById("editShowBtn").textContent = "Add Show"
         document.getElementById("editShowBtn").id = "newShowBtn"
 
-        console.log('add show')
-        console.log(document.getElementById("newShowBtn"))
-
         // Enable input field 
         document.getElementById("capacity").disabled = false;
         document.getElementById("artistName").disabled = false;
@@ -194,7 +176,6 @@ const connectCeloWallet = async function () {
 
         document.querySelector("#newShowBtn").addEventListener("click", async (e) => {
             if (document.getElementById("newShowBtn").id === "newShowBtn") {
-                console.log('add', '->')
                 const params = [
                     document.getElementById("artistName").value,
                     document.getElementById("newShowTitleName").value,
@@ -203,11 +184,7 @@ const connectCeloWallet = async function () {
                     document.getElementById("location").value,
                     document.getElementById("capacity").value,
                     document.getElementById("ticketPrice").value,
-                    // new BigNumber(document.getElementById("ticketPrice").value)
-                    // .shiftedBy(ERC20_DECIMALS)
-                    // .toString()
                   ]
-                  console.log(params)
                   notification(`⌛ Adding ${params[1]} show...`)
                   try {
                     const result = await contract.methods
@@ -237,7 +214,6 @@ const getShows = async function() {
     for (let i = 0; i < _showsLength; i++) {
         let _show = new Promise(async (resolve, reject) => {
           let p = await contract.methods.getAllShows(i).call()
-          console.log(p);
           resolve({
             index: i,
             owner: p[1],
@@ -261,7 +237,6 @@ const getShows = async function() {
 // render show
 const renderShows = function () {
   document.getElementById("showmarketplace").innerHTML = "";
-  console.log(shows, '-->display')
   shows.filter((show) => show.owner !== "0x0000000000000000000000000000000000000000").forEach((_product) => {
         const newDiv = document.createElement("div");
         newDiv.className = "col-md-4";
@@ -391,8 +366,6 @@ function identiconTemplate(_address) {
     if(e.target.className.includes("bookTicket")) {
       const index = e.target.id
       const amount = shows[index].price;
-    //   console.log(amount)
-
       notification(`🎉 Booking ${shows[index].show_title} show...`);
       try {
         await approve(shows[index].price)
