@@ -318,7 +318,7 @@ const showCard = (show_) => {
             <a class="btn btn-lg btn-outline-primary bookTicket fs-6 px-3 py-2" id=${
                 show_.index
             }>
-                Book a ticket
+                Book ticket
             </a>
             </div>
         </div>
