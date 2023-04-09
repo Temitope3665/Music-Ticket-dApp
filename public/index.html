@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Athiti:wght@200;300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bs-font-sans-serif: "Athiti", sans-serif;
+      }
+
+      @media (min-width: 576px) {
+        .card {
+          border: 0;
+          box-shadow: rgb(0 0 0 / 5%) 0px 10px 20px;
+          border-radius: 10px;
+        }
+
+        .card-img-top {
+          width: 100%;
+          height: 20vw;
+          object-fit: cover;
+        }
+      }
+    </style>
+    <title>iTicket - Book a ticket for a show</title>
+  </head>
+  <body>
+    <div class="container mt-2" style="max-width: 72em">
+      <!-- Nav section -->
+      <nav class="navbar bg-white navbar-light">
+        <div class="container-fluid">
+          <span class="navbar-brand m-0 h4 fw-bold">iTicket</span>
+          <span class="nav-link border rounded-pill bg-light">
+            <span id="balance">0.00</span>
+            CELO
+          </span>
+        </div>
+      </nav>
+
+      <!-- Loading comp -->
+      <div class="alert alert-warning sticky-top mt-2" role="alert">
+        <span id="notification">⌛ Loading...</span>
+      </div>
+
+      <!-- Add show cta -->
+      <div class="mb-4" style="margin-top: 4em">
+        <a
+          class="btn btn-primary rounded-pill"
+          data-bs-toggle="modal"
+          data-bs-target="#addModal"
+          id="addModalAgain"
+        >
+          Add a Show
+        </a>
+      </div>
+      <main id="showmarketplace" class="row"></main>
+    </div>
+
+    <!--Modal-->
+    <div
+      class="modal fade"
+      id="addModal"
+      tabindex="-1"
+      aria-labelledby="newProductModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newProductModalLabel">
+              New Show Details
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-row">
+                <div class="col form-group" style="display: none;">
+                    <label for="showId">Show Title:</label>
+                    <input
+                      type="text"
+                      id="showId"
+                      class="form-control mb-2"
+                      placeholder="Show id"
+                    />
+                  </div>
+                <div class="col form-group">
+                  <label for="newShowTitleName">Show Title:</label>
+                  <input
+                    type="text"
+                    id="newShowTitleName"
+                    class="form-control mb-2"
+                    placeholder="Enter title of show"
+                  />
+                </div>
+                <div class="col form-group">
+                  <label for="artistName">Artist:</label>
+                  <input
+                    type="text"
+                    id="artistName"
+                    class="form-control mb-2"
+                    placeholder="Enter artist name"
+                  />
+                </div>
+                <div class="col form-group">
+                  <label for="dateOfShow">Date of Show:</label>
+                  <input
+                    type="datetime-local"
+                    id="dateOfShow"
+                    class="form-control mb-2"
+                    placeholder="Enter date of show"
+                  />
+                </div>
+                <div class="col form-group">
+                  <label for="bannerArt">Banner Art:</label>
+                  <input
+                    type="text"
+                    id="bannerArt"
+                    class="form-control mb-2"
+                    placeholder="Paste your show art link"
+                  />
+                </div>
+                <div class="col form-group">
+                  <label for="location">Location:</label>
+                  <input
+                    type="text"
+                    id="location"
+                    class="form-control mb-2"
+                    placeholder="Where is the show taking place"
+                  />
+                </div>
+                <div class="col form-group">
+                  <label for="capacity">Hall Capacity:</label>
+                  <input
+                    type="number"
+                    id="capacity"
+                    class="form-control mb-2"
+                    placeholder="How many people can the all contain"
+                  />
+                </div>
+                <div class="col form-group">
+                  <label for="ticketPrice">Ticket Price (in CELO):</label>
+                  <input
+                    type="text"
+                    id="ticketPrice"
+                    class="form-control mb-2"
+                    placeholder="Enter ticket price"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <!-- <div id="editAddShow">
+
+            </div> -->
+            <button
+              type="button"
+              class="btn btn-primary addShow"
+              data-bs-dismiss="modal"
+              id="newShowBtn"
+            >
+              Add Show
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/ethereum-blockies@0.1.1/blockies.min.js"></script>
+    <script src="moment.js"></script>
+    <script>
+      moment().format();
+    </script>
+  </body>
+</html>

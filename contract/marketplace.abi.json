@@ -1,0 +1,298 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "bookTicket",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_artist_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_show_title",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_show_date",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_show_cover_img",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_location",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_capacity",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_price",
+				"type": "uint256"
+			}
+		],
+		"name": "createShow",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getAllShows",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address payable",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "created_at",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "artist_name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "show_title",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "show_date",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "show_cover_img",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "capacity",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "number_of_participant",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "total_sold",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "is_sold_out",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct ShowsMarketPlace.Show",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getShow",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address payable",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "created_at",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "artist_name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "show_title",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "show_date",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "show_cover_img",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "capacity",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "number_of_participant",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "total_sold",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "is_sold_out",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct ShowsMarketPlace.Show",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTotalShows",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "removeShow",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalShows",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_show_title",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_show_date",
+				"type": "string"
+			}
+		],
+		"name": "updateShow",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
