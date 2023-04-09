@@ -55,6 +55,7 @@ const connectCeloWallet = async function () {
             shows = await Promise.all(_shows)
               renderShows()
         }
+        getShows()
             
         notificationOff()
       } catch (error) {
@@ -95,6 +96,7 @@ const connectCeloWallet = async function () {
             document.getElementById("location").value = show[7],
             document.getElementById("capacity").value = show[9],
             document.getElementById("ticketPrice").value = show[8],
+
             // Disable field
             document.getElementById("capacity").disabled = true,
             document.getElementById("artistName").disabled = true,
