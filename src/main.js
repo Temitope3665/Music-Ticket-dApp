@@ -99,9 +99,10 @@ const connectCeloWallet = async function () {
             document.getElementById("bannerArt").value = show[6],
             document.getElementById("location").value = show[7],
             document.getElementById("capacity").value = show[9],
-            new BigNumber(document.getElementById("ticketPrice").value = show[8])
-            .shiftedBy(ERC20_DECIMALS)
-            .toString()
+            document.getElementById("ticketPrice").value = show[8],
+            // new BigNumber(document.getElementById("ticketPrice").value = show[8])
+            // .shiftedBy(ERC20_DECIMALS)
+            // .toString()
             // Disable field
             document.getElementById("capacity").disabled = true,
             document.getElementById("artistName").disabled = true,
@@ -149,9 +150,10 @@ const connectCeloWallet = async function () {
                     document.getElementById("bannerArt").value,
                     document.getElementById("location").value,
                     document.getElementById("capacity").value,
-                    new BigNumber(document.getElementById("ticketPrice").value)
-                    .shiftedBy(ERC20_DECIMALS)
-                    .toString()
+                    document.getElementById("ticketPrice").value,
+                    // new BigNumber(document.getElementById("ticketPrice").value)
+                    // .shiftedBy(ERC20_DECIMALS)
+                    // .toString()
                   ]
                   console.log(params)
                   notification(`⌛ Adding ${params[1]} show...`)
@@ -200,9 +202,10 @@ const connectCeloWallet = async function () {
                     document.getElementById("bannerArt").value,
                     document.getElementById("location").value,
                     document.getElementById("capacity").value,
-                    new BigNumber(document.getElementById("ticketPrice").value)
-                    .shiftedBy(ERC20_DECIMALS)
-                    .toString()
+                    document.getElementById("ticketPrice").value,
+                    // new BigNumber(document.getElementById("ticketPrice").value)
+                    // .shiftedBy(ERC20_DECIMALS)
+                    // .toString()
                   ]
                   console.log(params)
                   notification(`⌛ Adding ${params[1]} show...`)
