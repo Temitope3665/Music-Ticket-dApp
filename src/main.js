@@ -379,16 +379,16 @@ function identiconTemplate(_address) {
         .bookTicket(index)
         .send({ from: kit.defaultAccount });
         notification(`🎉 You've successfully booked ${shows[index].show_title} show.`)
-        const printContents = document.getElementById(`show-${index}`).innerHTML;
-        const originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
       } catch (error) {
         notification(`⚠️ ${error}.`)
       }
       notificationOff();
       await getShows();
       await getBalance();
+      const printContents = document.getElementById(`show-${index}`).innerHTML;
+      const originalContents = document.body.innerHTML;
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
     }
   })
