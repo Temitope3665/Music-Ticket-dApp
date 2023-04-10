@@ -6,6 +6,8 @@ This application allows users to
 * View different music shows ticket created by other users
 * Book a ticket for a particular music show
 * Create their own music ticket
+* Edit their ticket
+* and delete the ticket created
 
 ## Live Demo
 coming soon
