@@ -85,15 +85,15 @@ contract ShowsMarketPlace {
     function updateShow(
         uint256 _id,
         string memory _show_title,
-        string memory _show_date
+        string memory _artist_name
     ) public returns (bool success) {
         require(show[_id].owner == msg.sender, "Unauthorized entity");
         require(bytes(_show_title).length > 0, "Title cannot be empty");
-        require(bytes(_show_date).length > 0, "Date cannot be empty");
+        require(bytes(_artist_name).length > 0, "Artist name cannot be empty");
         for (uint256 i = 0; i < show.length; i++) {
             if (show[i].id == _id) {
                 show[i].show_title = _show_title;
-                show[i].show_date = _show_date;
+                show[i].artist_name = _artist_name;
                 show[i].created_at = block.timestamp;
             }
         }

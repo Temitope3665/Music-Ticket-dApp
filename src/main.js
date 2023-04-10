@@ -6,8 +6,8 @@ import moment from 'moment'
 import erc20Abi from "../contract/erc20.abi.json"
 
 const ERC20_DECIMALS = 18;
-const ContractAddress = "0x45613d14A7fD2e24344a05ca7a08701C95b4a035";
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
+const ContractAddress = "0xB2750cba91b1E21E22fB5d26af2876F8c46EAd98";
+const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 let kit;
 let contract;
@@ -41,13 +41,13 @@ const connectCeloWallet = async function () {
                     owner: p[1],
                     artist_name: p[3],
                     show_title: p[4],
-                    price: new BigNumber(p[8]),
+                    price: kit.web3.utils.fromWei(p[8]),
                     show_date: p[5],
                     show_cover_img: p[6],
                     location: p[7],
                     capacity: p[9],
-                    number_of_participant: p[7],
-                    sold: p[10],
+                    number_of_participant: p[10],
+                    sold: kit.web3.utils.fromWei(p[10]),
                   })
                 })
                 _shows.push(_show)
@@ -68,7 +68,7 @@ const connectCeloWallet = async function () {
 
   async function approve(_price) {
     const cUSDContract = new kit.web3.eth.Contract(erc20Abi, cUSDContractAddress)
-  
+    
     const result = await cUSDContract.methods
       .approve(ContractAddress, _price)
       .send({ from: kit.defaultAccount })
@@ -99,7 +99,7 @@ const connectCeloWallet = async function () {
 
             // Disable field
             document.getElementById("capacity").disabled = true,
-            document.getElementById("artistName").disabled = true,
+            document.getElementById("dateOfShow").disabled = true,
             document.getElementById("capacity").disabled = true,
             document.getElementById("bannerArt").disabled = true,
             document.getElementById("ticketPrice").disabled = true,
@@ -107,14 +107,16 @@ const connectCeloWallet = async function () {
 
             document.getElementById("newShowBtn").textContent = "Edit"
             document.getElementById("newShowBtn").id = "editShowBtn"
-        }
+        
             document.getElementById("editShowBtn").addEventListener("click", async (e) => {
                 if (document.getElementById("editShowBtn").id === "editShowBtn") {
                     const params = [
-                    document.getElementById("showId").value,
+                    Number(document.getElementById("showId").value),
                     document.getElementById("newShowTitleName").value,
-                    document.getElementById("dateOfShow").value,
+                    document.getElementById("artistName").value,
                     ]
+                    console.log(...params)
+                    console.log(contract.methods)
                     notification(`⌛ Editing "${params[1]}"...`)
                     try {
                     await contract.methods
@@ -128,6 +130,7 @@ const connectCeloWallet = async function () {
                     notificationOff()
                 }
             })
+          }
 })
 
   document.querySelector("#addModalAgain").addEventListener("click", async (e) => {
@@ -141,17 +144,19 @@ const connectCeloWallet = async function () {
                     document.getElementById("bannerArt").value,
                     document.getElementById("location").value,
                     document.getElementById("capacity").value,
-                    document.getElementById("ticketPrice").value,
+                    kit.web3.utils.toWei(document.getElementById("ticketPrice").value),
                   ]
                   notification(`⌛ Adding ${params[1]} show...`)
                   try {
+                    console.log(params);
                     const result = await contract.methods
                       .createShow(...params)
                       .send({ from: kit.defaultAccount })
+                      notification(`🎉 You successfully added ${params[1]} show.`)
                   } catch (error) {
+                    console.log(error)
                     notification(`⚠️ ${error}.`)
                   }
-                  notification(`🎉 You successfully added ${params[1]} show.`)
                   await getShows()
             }
         });
@@ -205,7 +210,7 @@ const connectCeloWallet = async function () {
 // get balance
 const getBalance = async function () {
     const getBalance = await kit.getTotalBalance(kit.defaultAccount)
-    const getCeloBalance = getBalance.CELO.shiftedBy(-ERC20_DECIMALS).toFixed(2)
+    const getCeloBalance = getBalance.cUSD.shiftedBy(-ERC20_DECIMALS).toFixed(2)
     document.querySelector("#balance").textContent = getCeloBalance;
 };
 
@@ -216,18 +221,19 @@ const getShows = async function() {
     for (let i = 0; i < _showsLength; i++) {
         let _show = new Promise(async (resolve, reject) => {
           let p = await contract.methods.getAllShows(i).call()
+          console.log(p)
           resolve({
             index: i,
             owner: p[1],
             artist_name: p[3],
             show_title: p[4],
-            price: new BigNumber(p[8]),
+            price: kit.web3.utils.fromWei(p[8]),
             show_date: p[5],
             show_cover_img: p[6],
             location: p[7],
             capacity: p[9],
             number_of_participant: p[10],
-            sold: p[11],
+            sold: kit.web3.utils.fromWei(p[11]),
           })
         })
         _shows.push(_show)
@@ -288,7 +294,7 @@ const showCard = (show_) => {
         Edit show
         </div>
         <div class="position-absolute top-0 end-0 bg-warning mt-4 px-2 py-1 rounded-start">
-        ${show_.sold} S/O
+        ${show_.number_of_participant} S/O
         </div>
         <div class="card-body text-left p-4 position-relative">
         <div class="position-absolute deleteTicket bottom-0 start-0 bg-danger mt-4 px-2 py-1 rounded-end" style="cursor: pointer; color: white" id=${show_.index}>
@@ -312,7 +318,7 @@ const showCard = (show_) => {
             </p>
             <p class="card-text">
             <i class="bi bi-tags-fill"></i>
-            <span>${show_.price} CELO</span>
+            <span>${show_.price} cUSD</span>
             </p>
             <div class="d-grid gap-2">
             <a class="btn btn-lg btn-outline-primary bookTicket fs-6 px-3 py-2" id=${
@@ -367,21 +373,22 @@ function identiconTemplate(_address) {
   document.querySelector("#showmarketplace").addEventListener("click", async (e) => {
     if(e.target.className.includes("bookTicket")) {
       const index = e.target.id
-      const amount = shows[index].price;
       notification(`🎉 Booking ${shows[index].show_title} show...`);
       try {
-        await approve(shows[index].price)
+        await approve(kit.web3.utils.toWei(shows[index].price))
       } catch (error) {
+        console.log({error})
         notification(`⚠️ ${error}.`)
       }
       try {
         const result = await contract.methods
         .bookTicket(index)
-        .send({ from: kit.defaultAccount, value: kit.web3.utils.toWei(amount.toString()) });
+        .send({ from: kit.defaultAccount });
+        notification(`🎉 You've successfully booked ${shows[index].show_title} show.`)
       } catch (error) {
+        console.log({error})
         notification(`⚠️ ${error}.`)
       }
-      notification(`🎉 You've successfully booked ${shows[index].show_title} show.`)
       notificationOff();
       await getShows();
       await getBalance();

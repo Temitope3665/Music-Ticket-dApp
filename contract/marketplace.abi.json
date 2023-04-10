@@ -280,7 +280,7 @@
 			},
 			{
 				"internalType": "string",
-				"name": "_show_date",
+				"name": "_artist_name",
 				"type": "string"
 			}
 		],
