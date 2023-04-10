@@ -10,7 +10,7 @@ This application allows users to
 * and delete the ticket created
 
 ## Live Demo
-[iTicket]https://temitope3665.github.io/Music-Ticket-dApp/
+[iTicket](https://temitope3665.github.io/Music-Ticket-dApp/)
 
 ## Usage
 
