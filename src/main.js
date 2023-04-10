@@ -115,8 +115,6 @@ const connectCeloWallet = async function () {
                     document.getElementById("newShowTitleName").value,
                     document.getElementById("artistName").value,
                     ]
-                    console.log(...params)
-                    console.log(contract.methods)
                     notification(`⌛ Editing "${params[1]}"...`)
                     try {
                     await contract.methods
@@ -148,13 +146,11 @@ const connectCeloWallet = async function () {
                   ]
                   notification(`⌛ Adding ${params[1]} show...`)
                   try {
-                    console.log(params);
                     const result = await contract.methods
                       .createShow(...params)
                       .send({ from: kit.defaultAccount })
                       notification(`🎉 You successfully added ${params[1]} show.`)
                   } catch (error) {
-                    console.log(error)
                     notification(`⚠️ ${error}.`)
                   }
                   await getShows()
@@ -221,7 +217,6 @@ const getShows = async function() {
     for (let i = 0; i < _showsLength; i++) {
         let _show = new Promise(async (resolve, reject) => {
           let p = await contract.methods.getAllShows(i).call()
-          console.log(p)
           resolve({
             index: i,
             owner: p[1],
@@ -245,10 +240,10 @@ const getShows = async function() {
 // render show
 const renderShows = function () {
   document.getElementById("showmarketplace").innerHTML = "";
-  shows.filter((show) => show.owner !== "0x0000000000000000000000000000000000000000").forEach((_product) => {
+  shows.filter((show) => show.owner !== "0x0000000000000000000000000000000000000000").forEach((_show) => {
         const newDiv = document.createElement("div");
         newDiv.className = "col-md-4";
-        newDiv.innerHTML = showCard(_product);
+        newDiv.innerHTML = showCard(_show);
         document.getElementById("showmarketplace").appendChild(newDiv);
       });
 };
@@ -287,7 +282,7 @@ document.querySelector("#showmarketplace").addEventListener("click", async (e) =
 
 const showCard = (show_) => {
   return `
-    <div class="card mb-4" style="min-height: 650px">
+    <div class="card mb-4" style="min-height: 650px" id="show-${show_.index}">
         <img class="card-img-top" src="${show_.show_cover_img}" alt="...">
         <div class="position-absolute editTicket top-0 start-0 bg-success mt-4 px-2 py-1 rounded-end" style="cursor: pointer" data-bs-toggle="modal"
         data-bs-target="#addModal" id=${show_.index}>
@@ -377,7 +372,6 @@ function identiconTemplate(_address) {
       try {
         await approve(kit.web3.utils.toWei(shows[index].price))
       } catch (error) {
-        console.log({error})
         notification(`⚠️ ${error}.`)
       }
       try {
@@ -385,8 +379,12 @@ function identiconTemplate(_address) {
         .bookTicket(index)
         .send({ from: kit.defaultAccount });
         notification(`🎉 You've successfully booked ${shows[index].show_title} show.`)
+        const printContents = document.getElementById(`show-${index}`).innerHTML;
+        const originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
       } catch (error) {
-        console.log({error})
         notification(`⚠️ ${error}.`)
       }
       notificationOff();
