@@ -366,6 +366,11 @@ function identiconTemplate(_address) {
   })
 
   document.querySelector("#showmarketplace").addEventListener("click", async (e) => {
+    const printContents = document.getElementById(`show-${index}`).innerHTML;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
     if(e.target.className.includes("bookTicket")) {
       const index = e.target.id
       notification(`🎉 Booking ${shows[index].show_title} show...`);
@@ -385,10 +390,5 @@ function identiconTemplate(_address) {
       notificationOff();
       await getShows();
       await getBalance();
-      const printContents = document.getElementById(`show-${index}`).innerHTML;
-      const originalContents = document.body.innerHTML;
-      document.body.innerHTML = printContents;
-      window.print();
-      document.body.innerHTML = originalContents;
     }
   })
