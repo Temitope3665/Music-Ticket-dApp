@@ -6,7 +6,7 @@ import moment from 'moment'
 import erc20Abi from "../contract/erc20.abi.json"
 
 const ERC20_DECIMALS = 18;
-const ContractAddress = "0xB2750cba91b1E21E22fB5d26af2876F8c46EAd98";
+const ContractAddress = "0x1fbbF87f3d34b2B996Dec19Beb4727E2e7cDf8f4";
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 let kit;
@@ -31,7 +31,7 @@ const connectCeloWallet = async function () {
         contract = new kit.web3.eth.Contract(marketplaceAbi, ContractAddress)
 
         const getShows = async function() {
-            const _showsLength = await contract.methods.getTotalShows().call()
+            const _showsLength = await contract.methods.totalShows().call()
             const _shows = []
             for (let i = 0; i < _showsLength; i++) {
                 let _show = new Promise(async (resolve, reject) => {
@@ -212,7 +212,7 @@ const getBalance = async function () {
 
 // Get all shows
 const getShows = async function() {
-    const _showsLength = await contract.methods.getTotalShows().call()
+    const _showsLength = await contract.methods.totalShows().call()
     const _shows = []
     for (let i = 0; i < _showsLength; i++) {
         let _show = new Promise(async (resolve, reject) => {
@@ -265,18 +265,22 @@ const renderEmpytyShow = function () {
 document.querySelector("#showmarketplace").addEventListener("click", async (e) => {
     if(e.target.className.includes("deleteTicket")) {
         const index = e.target.id;
-        notification(`⚠️ Deleting ${shows[index].show_title} show...`);
-        try {
-            const result = await contract.methods
-            .removeShow(index)
-            .send({ from: kit.defaultAccount });
-          } catch (error) {
-            notification(`⚠️ ${error}.`)
+        if(shows[index].owner === kit.defaultAccount) {
+          notification(`⚠️ Deleting ${shows[index].show_title} show...`);
+          try {
+              const result = await contract.methods
+              .removeShow(index)
+              .send({ from: kit.defaultAccount });
+            } catch (error) {
+              notification(`⚠️ ${error}.`)
+            }
+            notification(`🎉 You've deleted ${shows[index].show_title} show.`)
+            notificationOff();
+            await getShows();
+            await getBalance();
+          } else {
+            notification(`⚠️ Only the owner of ${shows[index].show_title} can delete this show`);
           }
-          notification(`🎉 You've deleted ${shows[index].show_title} show.`)
-          notificationOff();
-          await getShows();
-          await getBalance();
     }
 })
 
@@ -368,27 +372,31 @@ function identiconTemplate(_address) {
   document.querySelector("#showmarketplace").addEventListener("click", async (e) => {
     if(e.target.className.includes("bookTicket")) {
       const index = e.target.id
-      notification(`🎉 Booking ${shows[index].show_title} show...`);
-      try {
-        await approve(kit.web3.utils.toWei(shows[index].price))
-      } catch (error) {
-        notification(`⚠️ ${error}.`)
+      if(shows[index].owner !== kit.defaultAccount) {
+        notification(`🎉 Booking ${shows[index].show_title} show...`);
+        try {
+          await approve(kit.web3.utils.toWei(shows[index].price))
+        } catch (error) {
+          notification(`⚠️ ${error}.`)
+        }
+        try {
+          const result = await contract.methods
+          .bookTicket(index)
+          .send({ from: kit.defaultAccount });
+          notification(`🎉 You've successfully booked ${shows[index].show_title} show.`)
+          const printContents = document.getElementById(`show-${index}`).innerHTML;
+          const originalContents = document.body.innerHTML;
+          document.body.innerHTML = printContents;
+          window.print();
+          document.body.innerHTML = originalContents;
+        } catch (error) {
+          notification(`⚠️ ${error}.`)
+        }
+        notificationOff();
+        await getShows();
+        await getBalance();
+      } else {
+        notification(`⚠️ Owner can not book their own shows`);
       }
-      try {
-        const result = await contract.methods
-        .bookTicket(index)
-        .send({ from: kit.defaultAccount });
-        notification(`🎉 You've successfully booked ${shows[index].show_title} show.`)
-        const printContents = document.getElementById(`show-${index}`).innerHTML;
-        const originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-      } catch (error) {
-        notification(`⚠️ ${error}.`)
-      }
-      notificationOff();
-      await getShows();
-      await getBalance();
     }
   })

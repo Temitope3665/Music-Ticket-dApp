@@ -60,11 +60,6 @@ contract ShowsMarketPlace {
         totalShows++;
     }
 
-    // get the length of total shows
-    function getTotalShows() public view returns (uint256) {
-        return totalShows;
-    }
-
     // get single show
     // get show by passing the id of the show
     function getShow(uint256 _id)
@@ -106,6 +101,7 @@ contract ShowsMarketPlace {
             show[_id].number_of_participant < 1,
             "Sorry, you can not delete this show"
         );
+        require(show[_id].owner == msg.sender, "Only owner can remove a show");
         delete show[_id];
     }
 
