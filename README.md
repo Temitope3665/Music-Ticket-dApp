@@ -7,6 +7,7 @@ This application allows users to
 * Book a ticket for a particular music show
 * Create their own music ticket
 * Edit their ticket
+* Print ticket after a successful bookings
 * and delete the ticket created
 
 ## Live Demo
@@ -25,6 +26,7 @@ This application allows users to
 2. Book a ticket
 3. Edit a ticket
 4. Delete a ticket
+5. Print your ticket
 
 ### Technologies
 1. HTML
