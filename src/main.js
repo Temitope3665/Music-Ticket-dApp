@@ -1,52 +1,53 @@
-import Web3 from 'web3'
-import { newKitFromWeb3 } from '@celo/contractkit'
-import BigNumber from "bignumber.js"
-import marketplaceAbi from '../contract/marketplace.abi.json'
-import moment from 'moment'
-import erc20Abi from "../contract/erc20.abi.json"
+import Web3 from 'web3'; // Import the Web3 library for interacting with the Ethereum blockchain
+import { newKitFromWeb3 } from '@celo/contractkit'; // Import the Celo ContractKit for working with Celo contracts
+import BigNumber from "bignumber.js"; // Import BigNumber library for handling large numbers
+import marketplaceAbi from '../contract/marketplace.abi.json'; // Import the ABI (Application Binary Interface) for the marketplace contract
+import moment from 'moment'; // Import the Moment library for working with dates and times
+import erc20Abi from "../contract/erc20.abi.json"; // Import the ABI for the ERC20 token contract
 
-const ERC20_DECIMALS = 18;
-const ContractAddress = "0x1fbbF87f3d34b2B996Dec19Beb4727E2e7cDf8f4";
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
+const ERC20_DECIMALS = 18; // Define the number of decimal places for the ERC20 token
+const ContractAddress = "0x1fbbF87f3d34b2B996Dec19Beb4727E2e7cDf8f4"; // Define the address of the marketplace contract
+const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"; // Define the address of the cUSD (Celo USD) token contract
 
-let kit;
-let contract;
-let shows = [];
-let isEdited = false;
+let kit; // Initialize a variable to hold the Celo ContractKit instance
+let contract; // Initialize a variable to hold the marketplace contract instance
+let shows = []; // Initialize an array to store the list of shows
+let isEdited = false; // Initialize a boolean variable to track if a ticket is being edited
 
-// Connect to celo wallet
+// Function to connect to Celo wallet
 const connectCeloWallet = async function () {
-    if (window.celo) {
-        notification("⚠️ Please approve this DApp to use it.")
-      try {
-        await window.celo.enable()
-        notification("⚠️ Loading...")
+    if (window.celo) { // Check if the Celo extension wallet is available
+        notification("⚠️ Please approve this DApp to use it."); // Display a notification to approve the DApp
+        try {
+            await window.celo.enable(); // Enable the Celo extension wallet
+            notification("⚠️ Loading..."); // Display a notification for loading
 
-        const web3 = new Web3(window.celo)
-        kit = newKitFromWeb3(web3)
+            const web3 = new Web3(window.celo); // Create a new Web3 instance using the Celo provider
+            kit = newKitFromWeb3(web3); // Create a new ContractKit instance from the Web3 instance
 
-        const accounts = await kit.web3.eth.getAccounts()
-        kit.defaultAccount = accounts[0]
+            const accounts = await kit.web3.eth.getAccounts(); // Get the accounts associated with the Celo wallet
+            kit.defaultAccount = accounts[0]; // Set the default account to the first account in the list
 
-        contract = new kit.web3.eth.Contract(marketplaceAbi, ContractAddress)
+            contract = new kit.web3.eth.Contract(marketplaceAbi, ContractAddress); // Create a new contract instance for the marketplace contract
 
-        const getShows = async function() {
-            const _showsLength = await contract.methods.totalShows().call()
-            const _shows = []
-            for (let i = 0; i < _showsLength; i++) {
-                let _show = new Promise(async (resolve, reject) => {
-                  let p = await contract.methods.getAllShows(i).call()
-                  resolve({
-                    index: i,
-                    owner: p[1],
-                    artist_name: p[3],
-                    show_title: p[4],
-                    price: kit.web3.utils.fromWei(p[8]),
-                    show_date: p[5],
-                    show_cover_img: p[6],
-                    location: p[7],
-                    capacity: p[9],
-                    number_of_participant: p[10],
+            // Function to get the list of shows from the marketplace contract
+            const getShows = async function() {
+                const _showsLength = await contract.methods.totalShows().call(); // Get the total number of shows from the contract
+                const _shows = []; // Initialize an array to store the shows
+                for (let i = 0; i < _showsLength; i++) {
+                    let _show = new Promise(async (resolve, reject) => {
+                        let p = await contract.methods.getAllShows(i).call(); // Get the details of a show from the contract
+                        resolve({
+                            index: i,
+                            owner: p[1],
+                            artist_name: p[3],
+                            show_title: p[4],
+                            price: kit.web3.utils.fromWei(p[8]), // Convert the price from wei to cUSD
+                            show_date: p[5],
+                            show_cover_img: p[6],
+                            location: p[7],
+                            capacity: p[9],
+                            number_of_participant: p[10],
                     sold: kit.web3.utils.fromWei(p[10]),
                   })
                 })
