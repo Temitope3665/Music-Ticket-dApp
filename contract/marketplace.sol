@@ -41,8 +41,9 @@ contract ShowsMarketPlace {
         uint256 _capacity,
         uint256 _price
     ) public {
+        totalShows++; // Increment totalShows
         Show memory _newShow = Show(
-            totalShows,
+            totalShows, // Incremented totalShows is used as the ID
             payable(msg.sender),
             block.timestamp,
             _artist_name,
@@ -57,7 +58,6 @@ contract ShowsMarketPlace {
             false
         );
         show.push(_newShow);
-        totalShows++;
     }
 
     // get single show
