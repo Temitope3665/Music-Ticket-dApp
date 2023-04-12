@@ -30,6 +30,10 @@ contract ShowsMarketPlace {
         require(_id < totalShows, "ID not valid!, show has not been created");
         _;
     }
+    modifier isGreaterThanZero(uint256 _amount) {
+        require(_amount > 0, "amount must be greater than zero");
+        _;
+    }
 
     // create show ticket
     function createShow(
@@ -40,7 +44,7 @@ contract ShowsMarketPlace {
         string memory _location,
         uint256 _capacity,
         uint256 _price
-    ) public {
+    ) public isGreaterThanZero(_capacity) isGreaterThanZero(_price) {
         totalShows++; // Increment totalShows
         Show memory _newShow = Show(
             totalShows, // Incremented totalShows is used as the ID
