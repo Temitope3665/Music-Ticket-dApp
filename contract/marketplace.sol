@@ -52,7 +52,7 @@ contract ShowsMarketPlace {
             _show_cover_img,
             _location,
             _price,
-            _capacity,
+            _capacity, //capacity should measure the total number of participants a show should take
             0,
             0,
             true //setting as true here indicates that show is active
@@ -114,6 +114,10 @@ contract ShowsMarketPlace {
             if (show[i].id == _id) {
                 require(msg.value > 0, "Amount must be greater than 0!");
                 require(show[i].is_active == true, "Campaign has ended");
+                require(
+                    show[i].number_of_participant < show[i].capacity,
+                    "Campaign has reached its capacity"
+                );
                 require(
                     msg.sender != show[i].owner,
                     "You cannot donate to your own campaign"
