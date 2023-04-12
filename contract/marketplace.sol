@@ -3,6 +3,20 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 contract ShowsMarketPlace {
+    //all events
+    event ShowCreated(
+        address indexed showOwner,
+        uint256 indexed showId,
+        uint256 indexed showPrice,
+        uint256 showCapacity
+    );
+    event ShowUpdated(address indexed showOwner, uint256 indexed showId);
+    event TicketBooked(
+        address indexed buyer,
+        uint256 indexed showId,
+        uint256 indexed amountPaid
+    );
+
     // this holds all the shows created
     uint256 public totalShows;
 
@@ -62,6 +76,9 @@ contract ShowsMarketPlace {
             true //setting as true here indicates that show is active
         );
         show.push(_newShow);
+
+        //emit event
+        emit ShowCreated(msg.sender, totalShows, _price, _capacity);
     }
 
     // get single show
@@ -97,6 +114,9 @@ contract ShowsMarketPlace {
                 show[i].created_at = block.timestamp;
             }
         }
+
+        //emit events
+        emit ShowUpdated(msg.sender, _id);
         return true;
     }
 
@@ -130,5 +150,8 @@ contract ShowsMarketPlace {
                 show[i].total_sold += msg.value;
             }
         }
+
+        //emit events
+        emit TicketBooked(msg.sender, _id, msg.value);
     }
 }
