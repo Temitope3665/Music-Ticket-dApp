@@ -19,7 +19,7 @@ contract ShowsMarketPlace {
         uint256 capacity;
         uint256 number_of_participant;
         uint256 total_sold;
-        bool is_sold_out;
+        bool is_active;
     }
 
     // array that holds all shows
@@ -55,19 +55,16 @@ contract ShowsMarketPlace {
             _capacity,
             0,
             0,
-            false
+            true //setting as true here indicates that show is active
         );
         show.push(_newShow);
     }
 
     // get single show
     // get show by passing the id of the show
-    function getShow(uint256 _id)
-        public
-        view
-        isIdValid(_id)
-        returns (Show memory)
-    {
+    function getShow(
+        uint256 _id
+    ) public view isIdValid(_id) returns (Show memory) {
         return show[_id];
     }
 
@@ -85,6 +82,10 @@ contract ShowsMarketPlace {
         require(show[_id].owner == msg.sender, "Unauthorized entity");
         require(bytes(_show_title).length > 0, "Title cannot be empty");
         require(bytes(_artist_name).length > 0, "Artist name cannot be empty");
+        require(
+            show[_id].is_active == true,
+            "You cannot update an inactive show"
+        );
         for (uint256 i = 0; i < show.length; i++) {
             if (show[i].id == _id) {
                 show[i].show_title = _show_title;
@@ -102,7 +103,9 @@ contract ShowsMarketPlace {
             "Sorry, you can not delete this show"
         );
         require(show[_id].owner == msg.sender, "Only owner can remove a show");
-        delete show[_id];
+        //Deleting creates gaps in the mappings, instead update bool that monitors
+        // delete show[_id];
+        show[_id].is_active = false;
     }
 
     // book a show
@@ -110,8 +113,11 @@ contract ShowsMarketPlace {
         for (uint256 i = 0; i < show.length; i++) {
             if (show[i].id == _id) {
                 require(msg.value > 0, "Amount must be greater than 0!");
-                require(show[i].is_sold_out == false, "Campaign has ended");
-                require(msg.sender != show[i].owner, "You cannot donate to your own campaign");
+                require(show[i].is_active == true, "Campaign has ended");
+                require(
+                    msg.sender != show[i].owner,
+                    "You cannot donate to your own campaign"
+                );
                 show[i].number_of_participant++;
                 show[i].total_sold += msg.value;
             }
