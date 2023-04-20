@@ -3,6 +3,20 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 contract ShowsMarketPlace {
+    //all events
+    event ShowCreated(
+        address indexed showOwner,
+        uint256 indexed showId,
+        uint256 indexed showPrice,
+        uint256 showCapacity
+    );
+    event ShowUpdated(address indexed showOwner, uint256 indexed showId);
+    event TicketBooked(
+        address indexed buyer,
+        uint256 indexed showId,
+        uint256 indexed amountPaid
+    );
+
     // this holds all the shows created
     uint256 public totalShows;
 
@@ -19,7 +33,7 @@ contract ShowsMarketPlace {
         uint256 capacity;
         uint256 number_of_participant;
         uint256 total_sold;
-        bool is_sold_out;
+        bool is_active;
     }
 
     // array that holds all shows
@@ -28,6 +42,10 @@ contract ShowsMarketPlace {
     // check if a new show created is valid
     modifier isIdValid(uint256 _id) {
         require(_id < totalShows, "ID not valid!, show has not been created");
+        _;
+    }
+    modifier isGreaterThanZero(uint256 _amount) {
+        require(_amount > 0, "amount must be greater than zero");
         _;
     }
 
@@ -40,9 +58,10 @@ contract ShowsMarketPlace {
         string memory _location,
         uint256 _capacity,
         uint256 _price
-    ) public {
+    ) public isGreaterThanZero(_capacity) isGreaterThanZero(_price) {
+        totalShows++; // Increment totalShows
         Show memory _newShow = Show(
-            totalShows,
+            totalShows, // Incremented totalShows is used as the ID
             payable(msg.sender),
             block.timestamp,
             _artist_name,
@@ -51,23 +70,22 @@ contract ShowsMarketPlace {
             _show_cover_img,
             _location,
             _price,
-            _capacity,
+            _capacity, //capacity should measure the total number of participants a show should take
             0,
             0,
-            false
+            true //setting as true here indicates that show is active
         );
         show.push(_newShow);
-        totalShows++;
+
+        //emit event
+        emit ShowCreated(msg.sender, totalShows, _price, _capacity);
     }
 
     // get single show
     // get show by passing the id of the show
-    function getShow(uint256 _id)
-        public
-        view
-        isIdValid(_id)
-        returns (Show memory)
-    {
+    function getShow(
+        uint256 _id
+    ) public view isIdValid(_id) returns (Show memory) {
         return show[_id];
     }
 
@@ -85,6 +103,10 @@ contract ShowsMarketPlace {
         require(show[_id].owner == msg.sender, "Unauthorized entity");
         require(bytes(_show_title).length > 0, "Title cannot be empty");
         require(bytes(_artist_name).length > 0, "Artist name cannot be empty");
+        require(
+            show[_id].is_active == true,
+            "You cannot update an inactive show"
+        );
         for (uint256 i = 0; i < show.length; i++) {
             if (show[i].id == _id) {
                 show[i].show_title = _show_title;
@@ -92,6 +114,9 @@ contract ShowsMarketPlace {
                 show[i].created_at = block.timestamp;
             }
         }
+
+        //emit events
+        emit ShowUpdated(msg.sender, _id);
         return true;
     }
 
@@ -102,7 +127,9 @@ contract ShowsMarketPlace {
             "Sorry, you can not delete this show"
         );
         require(show[_id].owner == msg.sender, "Only owner can remove a show");
-        delete show[_id];
+        //Deleting creates gaps in the mappings, instead update bool that monitors
+        // delete show[_id];
+        show[_id].is_active = false;
     }
 
     // book a show
@@ -110,11 +137,21 @@ contract ShowsMarketPlace {
         for (uint256 i = 0; i < show.length; i++) {
             if (show[i].id == _id) {
                 require(msg.value > 0, "Amount must be greater than 0!");
-                require(show[i].is_sold_out == false, "Campaign has ended");
-                require(msg.sender != show[i].owner, "You cannot donate to your own campaign");
+                require(show[i].is_active == true, "Campaign has ended");
+                require(
+                    show[i].number_of_participant < show[i].capacity,
+                    "Campaign has reached its capacity"
+                );
+                require(
+                    msg.sender != show[i].owner,
+                    "You cannot donate to your own campaign"
+                );
                 show[i].number_of_participant++;
                 show[i].total_sold += msg.value;
             }
         }
+
+        //emit events
+        emit TicketBooked(msg.sender, _id, msg.value);
     }
 }

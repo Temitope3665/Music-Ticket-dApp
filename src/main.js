@@ -1,52 +1,53 @@
-import Web3 from 'web3'
-import { newKitFromWeb3 } from '@celo/contractkit'
-import BigNumber from "bignumber.js"
-import marketplaceAbi from '../contract/marketplace.abi.json'
-import moment from 'moment'
-import erc20Abi from "../contract/erc20.abi.json"
+import Web3 from 'web3'; // Import the Web3 library for interacting with the Ethereum blockchain
+import { newKitFromWeb3 } from '@celo/contractkit'; // Import the Celo ContractKit for working with Celo contracts
+import BigNumber from "bignumber.js"; // Import BigNumber library for handling large numbers
+import marketplaceAbi from '../contract/marketplace.abi.json'; // Import the ABI (Application Binary Interface) for the marketplace contract
+import moment from 'moment'; // Import the Moment library for working with dates and times
+import erc20Abi from "../contract/erc20.abi.json"; // Import the ABI for the ERC20 token contract
 
-const ERC20_DECIMALS = 18;
-const ContractAddress = "0x1fbbF87f3d34b2B996Dec19Beb4727E2e7cDf8f4";
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
+const ERC20_DECIMALS = 18; // Define the number of decimal places for the ERC20 token
+const ContractAddress = "0xB2750cba91b1E21E22fB5d26af2876F8c46EAd98"; // Define the address of the marketplace contract
+const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"; // Define the address of the cUSD (Celo USD) token contract
 
-let kit;
-let contract;
-let shows = [];
-let isEdited = false;
+let kit; // Initialize a variable to hold the Celo ContractKit instance
+let contract; // Initialize a variable to hold the marketplace contract instance
+let shows = []; // Initialize an array to store the list of shows
+let isEdited = false; // Initialize a boolean variable to track if a ticket has beeen edited
 
-// Connect to celo wallet
+// Function to connect to Celo wallet
 const connectCeloWallet = async function () {
-    if (window.celo) {
-        notification("⚠️ Please approve this DApp to use it.")
-      try {
-        await window.celo.enable()
-        notification("⚠️ Loading...")
+    if (window.celo) { // Check if the Celo extension wallet is available
+        notification("⚠️ Please approve this DApp to use it."); // Display a notification to approve the DApp
+        try {
+            await window.celo.enable(); // Enable the Celo extension wallet
+            notification("⚠️ Loading..."); // Display a notification for loading
 
-        const web3 = new Web3(window.celo)
-        kit = newKitFromWeb3(web3)
+            const web3 = new Web3(window.celo); // Create a new Web3 instance using the Celo provider
+            kit = newKitFromWeb3(web3); // Create a new ContractKit instance from the Web3 instance
 
-        const accounts = await kit.web3.eth.getAccounts()
-        kit.defaultAccount = accounts[0]
+            const accounts = await kit.web3.eth.getAccounts(); // Get the accounts associated with the Celo wallet
+            kit.defaultAccount = accounts[0]; // Set the default account to the first account in the list
 
-        contract = new kit.web3.eth.Contract(marketplaceAbi, ContractAddress)
+            contract = new kit.web3.eth.Contract(marketplaceAbi, ContractAddress); // Create a new contract instance for the marketplace contract
 
-        const getShows = async function() {
-            const _showsLength = await contract.methods.totalShows().call()
-            const _shows = []
-            for (let i = 0; i < _showsLength; i++) {
-                let _show = new Promise(async (resolve, reject) => {
-                  let p = await contract.methods.getAllShows(i).call()
-                  resolve({
-                    index: i,
-                    owner: p[1],
-                    artist_name: p[3],
-                    show_title: p[4],
-                    price: kit.web3.utils.fromWei(p[8]),
-                    show_date: p[5],
-                    show_cover_img: p[6],
-                    location: p[7],
-                    capacity: p[9],
-                    number_of_participant: p[10],
+            // Function to get the list of shows from the marketplace contract
+            const getShows = async function() {
+                const _showsLength = await contract.methods.totalShows().call(); // Get the total number of shows from the contract
+                const _shows = []; // Initialize an array to store the shows
+                for (let i = 0; i < _showsLength; i++) {
+                    let _show = new Promise(async (resolve, reject) => {
+                        let p = await contract.methods.getAllShows(i).call(); // Get the details of a show from the contract
+                        resolve({
+                            index: i,
+                            owner: p[1],
+                            artist_name: p[3],
+                            show_title: p[4],
+                            price: kit.web3.utils.fromWei(p[8]), // Convert the price from wei to cUSD
+                            show_date: p[5],
+                            show_cover_img: p[6],
+                            location: p[7],
+                            capacity: p[9],
+                            number_of_participant: p[10],
                     sold: kit.web3.utils.fromWei(p[10]),
                   })
                 })
@@ -280,23 +281,50 @@ document.querySelector("#showmarketplace").addEventListener("click", async (e) =
             await getBalance();
           } else {
             notification(`⚠️ Only the owner of ${shows[index].show_title} can delete this show`);
+            setTimeout(() => {
+              notificationOff();
+            }, 2000);
           }
+    } else if (e.target.className.includes("nDelete")) {
+      const index = e.target.id;
+      if (shows[index].owner !== kit.defaultAccount) {
+        notification(`⚠️ Only the owner of ${shows[index].show_title} can delete this show`);
+        setTimeout(() => {
+          notificationOff();
+        }, 2000);
+      } else {
+        notification(`⚠️ Ticket can not be deleted because it has participants`);
+        setTimeout(() => {
+          notificationOff();
+        }, 2000);
+      }
     }
-})
+});
 
+// NB:
+// this renders all the shows in a card
+// edit show is removed if user is not the owner/creator
+// book ticket button faded out if ticket is sold out and the cta changes
+// Not sold out text changes to 'sold out' if ticket is sold out
+// Delete button does not work if user is not the owner/creator
 const showCard = (show_) => {
+  const isSoldOut = show_.capacity === show_.number_of_participant || show_.capacity < show_.number_of_participant;
   return `
     <div class="card mb-4" style="min-height: 650px" id="show-${show_.index}">
         <img class="card-img-top" src="${show_.show_cover_img}" alt="...">
+        ${show_.owner == kit.defaultAccount ? `
+        ${isSoldOut ? '' : `
         <div class="position-absolute editTicket top-0 start-0 bg-success mt-4 px-2 py-1 rounded-end" style="cursor: pointer" data-bs-toggle="modal"
         data-bs-target="#addModal" id=${show_.index}>
         Edit show
         </div>
+      `}
+        ` : ''}
         <div class="position-absolute top-0 end-0 bg-warning mt-4 px-2 py-1 rounded-start">
         ${show_.number_of_participant} S/O
         </div>
         <div class="card-body text-left p-4 position-relative">
-        <div class="position-absolute deleteTicket bottom-0 start-0 bg-danger mt-4 px-2 py-1 rounded-end" style="cursor: pointer; color: white" id=${show_.index}>
+        <div class="position-absolute ${show_.number_of_participant > 0 ? 'nDelete' : 'deleteTicket'} bottom-0 start-0 bg-danger mt-4 px-2 py-1 rounded-end" style="cursor: pointer; color: white" id=${show_.index}>
         Delete ticket
         </div>
         <div class="translate-middle-y position-absolute top-0">
@@ -313,18 +341,18 @@ const showCard = (show_) => {
             </p>
             <p class="card-text">
             <i class="bi bi-people-fill"></i>
-            <span>${show_.capacity} capacity | <span class="text-danger">Not sold out</span></span>
+            <span>${show_.capacity} capacity | <span class="text-danger">${isSoldOut ? 'Sold out' : 'Not sold out'}</span></span>
             </p>
             <p class="card-text">
             <i class="bi bi-tags-fill"></i>
             <span>${show_.price} cUSD</span>
             </p>
-            <div class="d-grid gap-2">
-            <a class="btn btn-lg btn-outline-primary bookTicket fs-6 px-3 py-2" id=${
-                show_.index
-            }>
-                Book ticket
-            </a>
+            <div class="d-grid gap-2" id="bookButton" style="opacity: ${isSoldOut ? '0.5' : '1'};"}>
+              <a class="btn btn-lg ${isSoldOut ? 'disableTicket btn-primary' : 'bookTicket  btn-outline-primary'} fs-6 px-3 py-2" id=${
+                  show_.index
+              }>
+                  ${isSoldOut ? 'Ticket fully booked' : 'Book ticket'}
+              </a>
             </div>
         </div>
     </div>
@@ -361,7 +389,6 @@ function identiconTemplate(_address) {
   }
 
   window.addEventListener("load", async () => {
-    localStorage.setItem('edit', false);
     notification("⌛ Loading...")
     await connectCeloWallet();
     await getBalance();
@@ -397,6 +424,14 @@ function identiconTemplate(_address) {
         await getBalance();
       } else {
         notification(`⚠️ Owner can not book their own shows`);
+        setTimeout(() => {
+          notificationOff();
+        }, 2000);
       }
+    } else if (e.target.className.includes("disableTicket")) {
+      notification(`⚠️ Sorry, show is sold out...`);
+      setTimeout(() => {
+        notificationOff();
+      }, 2000);
     }
   })
