@@ -308,12 +308,17 @@ document.querySelector("#showmarketplace").addEventListener("click", async (e) =
 // Not sold out text changes to 'sold out' if ticket is sold out
 // Delete button does not work if user is not the owner/creator
 const showCard = (show_) => {
+  // Check if show is sold out
   const isSoldOut = show_.capacity === show_.number_of_participant || show_.capacity < show_.number_of_participant;
+  // Check if date of show has past
+  const currentDate = new Date();
+  const setDate = new Date(show_.show_date);
+  const isExpired = currentDate > setDate;
   return `
     <div class="card mb-4" style="min-height: 650px" id="show-${show_.index}">
         <img class="card-img-top" src="${show_.show_cover_img}" alt="...">
         ${show_.owner == kit.defaultAccount ? `
-        ${isSoldOut ? '' : `
+        ${isSoldOut || isExpired ? '' : `
         <div class="position-absolute editTicket top-0 start-0 bg-success mt-4 px-2 py-1 rounded-end" style="cursor: pointer" data-bs-toggle="modal"
         data-bs-target="#addModal" id=${show_.index}>
         Edit show
@@ -347,8 +352,8 @@ const showCard = (show_) => {
             <i class="bi bi-tags-fill"></i>
             <span>${show_.price} cUSD</span>
             </p>
-            <div class="d-grid gap-2" id="bookButton" style="opacity: ${isSoldOut ? '0.5' : '1'};"}>
-              <a class="btn btn-lg ${isSoldOut ? 'disableTicket btn-primary' : 'bookTicket  btn-outline-primary'} fs-6 px-3 py-2" id=${
+            <div class="d-grid gap-2" id="bookButton" style="opacity: ${isSoldOut || isExpired ? '0.5' : '1'};"}>
+              <a class="btn btn-lg ${isSoldOut ? 'disableTicket btn-primary' : isExpired ? 'expiredTicket btn-primary' : 'bookTicket  btn-outline-primary'} fs-6 px-3 py-2" id=${
                   show_.index
               }>
                   ${isSoldOut ? 'Ticket fully booked' : 'Book ticket'}
@@ -430,6 +435,11 @@ function identiconTemplate(_address) {
       }
     } else if (e.target.className.includes("disableTicket")) {
       notification(`⚠️ Sorry, show is sold out...`);
+      setTimeout(() => {
+        notificationOff();
+      }, 2000);
+    } else if (e.target.className.includes("expiredTicket")) {
+      notification(`⚠️ Sorry, ticket expired.`);
       setTimeout(() => {
         notificationOff();
       }, 2000);
