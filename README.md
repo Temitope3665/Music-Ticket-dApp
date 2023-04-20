@@ -9,7 +9,8 @@ This application will allow users to:
 2. Book tickets for a particular music shows.
 3. Create their own music tickets.
 4. Edit their tickets.
-5. And Delete the tickets created.
+5. Upon successful bookings, user can download the ticket.
+6. And Delete the tickets created.
 
 ## Live Demo:
 
@@ -30,6 +31,7 @@ This application will allow users to:
 2. Book tickets.
 3. Edit tickets.
 4. Delete tickets.
+5. Download music ticket.
 
 ### Technologies Used:
 
