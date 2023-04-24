@@ -86,7 +86,9 @@ contract ShowsMarketPlace {
     function getShow(
         uint256 _id
     ) public view isIdValid(_id) returns (Show memory) {
-        return show[_id];
+        require(_id > 0 && _id <= totalShows, "Invalid show ID");
+     return show[_id - 1];
+
     }
 
     // get all shows
@@ -134,24 +136,14 @@ contract ShowsMarketPlace {
 
     // book a show
     function bookTicket(uint256 _id) public payable isIdValid(_id) {
-        for (uint256 i = 0; i < show.length; i++) {
-            if (show[i].id == _id) {
-                require(msg.value > 0, "Amount must be greater than 0!");
-                require(show[i].is_active == true, "Campaign has ended");
-                require(
-                    show[i].number_of_participant < show[i].capacity,
-                    "Campaign has reached its capacity"
-                );
-                require(
-                    msg.sender != show[i].owner,
-                    "You cannot donate to your own campaign"
-                );
-                show[i].number_of_participant++;
-                show[i].total_sold += msg.value;
-            }
-        }
+     Show storage s = show[_id - 1];
+     require(msg.value > 0, "Amount must be greater than 0!");
+     require(s.is_active == true, "Show has ended");
+     require(s.number_of_participant < s.capacity, "Show has reached its capacity");
+     s.number_of_participant++;
+     s.total_sold += msg.value;
+     //emit events
+     emit TicketBooked(msg.sender, _id, msg.value);
+ }
 
-        //emit events
-        emit TicketBooked(msg.sender, _id, msg.value);
-    }
 }
